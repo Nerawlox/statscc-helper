@@ -1,0 +1,16 @@
+*.dpapi
+*.db
+*.db-wal
+*.db-shm
+*.log
+*.pid
+app-config.json
+settings.json
+status.json
+stop.request
+profile.json
+auth.json
+/.downloads/
+/.local/
+/dist/
+/bin/

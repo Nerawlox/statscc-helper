@@ -1,0 +1,13 @@
+{
+  "xray": {
+    "version": "26.3.27",
+    "url": "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/Xray-windows-64.zip",
+    "sha256": "d004c39288ce9ada487c6f398c7c545f7d749e44bdfdd59dbc9f865afba4e1ad",
+    "executableSha256": "15c2d007954ac53ba69b80ec91242786b3c0b71d52649165b4ca1d5cc96ef8f1"
+  },
+  "proxifyre": {
+    "version": "2.6.1",
+    "url": "https://github.com/wiresock/proxifyre/releases/download/v2.6.1/ProxiFyre-2.6.1-win-x64-setup.exe",
+    "sha256": "c08cbb5c15acd04d77d7c330712ae366d2a9a8e2a290586e8fe9aa73c78a1908"
+  }
+}

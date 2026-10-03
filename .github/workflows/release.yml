@@ -1,0 +1,22 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        shell: powershell
+        run: ./scripts/Test.ps1
+      - name: Build
+        shell: powershell
+        run: ./scripts/Build.ps1 -Version ($env:GITHUB_REF_NAME.TrimStart('v'))
+      - name: Publish release
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create $env:GITHUB_REF_NAME ./dist/*.zip ./dist/*.sha256 --prerelease --title "statscc-helper $env:GITHUB_REF_NAME" --notes-file CHANGELOG.md
