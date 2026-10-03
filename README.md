@@ -1,157 +1,170 @@
 # statscc-helper
 
-Отдельное подключение для оверлея **stats.cc** на Windows. Общий VPN можно
-оставить выключенным: через сервер идёт только трафик установленного `stats.cc.exe`.
+An independent connection for the **stats.cc overlay** on Windows. Route the
+installed `stats.cc.exe` through your own server while leaving your general VPN off.
 
-Метод **не привязан к Throne**. Throne — один из способов импортировать параметры
-сервера. Можно импортировать JSON outbound или полную конфигурацию Xray из файла,
-выбрав нужное подключение. При таком импорте Throne устанавливать не нужно.
+The method is **not tied to Throne**. Import a connection from Throne, or select an
+outbound from an Xray JSON file. Throne is not required when importing JSON, and
+does not need to stay open after importing a profile.
 
-Нужен свой работающий сервер или подписка. Этот проект настраивает маршрут для
-трекера; серверов и бесплатного подключения он не предоставляет.
+**You need your own working server or subscription.** This project sets up routing
+for the tracker; it does not provide servers or free proxy access.
 
-Установщик нужен для первоначальной настройки. Потом один ярлык запускает
-обычный оверлей stats.cc и фоновые процессы помощника. Отдельного окна,
-консоли или значка помощника в трее при успешном запуске нет. Окно появляется
-только при ошибке. Throne после импорта открывать не требуется.
+The installer runs once to set up the components and shortcuts. After that, one
+shortcut starts the regular stats.cc overlay and the helper's background processes.
+A successful launch opens no extra helper window, console or tray icon.
+An error dialog appears if startup fails.
 
-## Как работает
+> **Experimental release.** The underlying method has been confirmed working on
+> one Windows computer with VLESS + REALITY + XHTTP and the general VPN off.
+> The generic installer has automated checks, but has not been validated across
+> different Windows installations, servers and providers.
+
+## How it works
 
 ```text
-stats.cc → ProxiFyre (правило для одного exe)
-         → SOCKS5 127.0.0.1:21981 → отдельный Xray → твой сервер
+stats.cc -> ProxiFyre (rule for one executable)
+         -> SOCKS5 127.0.0.1:21981 -> independent Xray -> your server
 ```
 
-Xray не создаёт TUN и не меняет системный прокси. Его исходящее соединение
-закреплено за физическим Wi-Fi/Ethernet. ProxiFyre перенаправляет TCP/UDP
-процессов stats.cc, включая встроенный браузер и WebSocket. Локальная сеть
-остаётся прямой. Игра, GearUP и основной Throne исключены из правил.
+Xray does not create a TUN adapter or change the Windows system proxy. Its outbound
+connection is bound to a physical Wi-Fi/Ethernet interface. ProxiFyre routes the
+stats.cc processes' TCP/UDP traffic, including the embedded browser and WebSocket
+connections. Local network destinations bypass the proxy. The game, GearUP and
+the main Throne processes are excluded from the rules.
 
-## Требования
+## Requirements
 
-- Windows 10/11 **x64**, Windows PowerShell 5.1, учётная запись с правами администратора.
-- Установленный оверлей [stats.cc](https://www.stats.cc/overlay).
-- Рабочее подключение, совместимое с Xray.
-- Доступ к GitHub во время установки для скачивания зависимостей.
+- Windows 10/11 **x64**, Windows PowerShell 5.1 and an administrator account.
+- The installed [stats.cc overlay](https://www.stats.cc/overlay).
+- A working Xray-compatible connection.
+- Access to GitHub during setup to download dependencies.
 
-Поддерживаются JSON outbounds `vless`, `vmess`, `trojan`, `shadowsocks`, `socks`,
-`http` с TCP-транспортом. Практическая проверка выполнена на **VLESS + REALITY + XHTTP**.
-Остальные варианты требуют проверки с конкретным сервером. Профили sing-box,
-WireGuard/OpenVPN, цепочки outbounds и UDP-транспорт до сервера не импортируются.
-Для SOCKS/HTTP-прокси тоже используется формат outbound Xray.
+The importer accepts Xray JSON outbounds using `vless`, `vmess`, `trojan`,
+`shadowsocks`, `socks` or `http` with a TCP-based transport. **VLESS + REALITY + XHTTP**
+is the configuration tested in practice. Other combinations need testing with
+your server. Native sing-box, WireGuard/OpenVPN profiles, outbound chains and
+UDP-based transports to the server are not supported. SOCKS/HTTP proxies must
+also be supplied in Xray outbound format.
 
-## Установка
+## Installation
 
-1. Скачай `statscc-helper-0.1.0-windows-x64.zip` из
-   [Releases](https://github.com/Nerawlox/statscc-helper/releases) и распакуй его.
-2. Выбери момент, когда допустимо краткое прерывание сети: установка сетевого
-   фильтра Windows Packet Filter может изменить привязки адаптеров.
-3. Запусти `Install.cmd` и подтверди UAC **своей Windows-учётной записью**.
-4. Выбери импорт из Throne либо файл с outbound/config Xray. Для portable Throne
-   можно указать его `throne.db`. Выбери профиль из списка.
-5. Если stats.cc установлен не в обычной папке, укажи его `stats.cc.exe`.
-6. Дождись установки. На рабочем столе появятся `stats.cc helper` и
-   `Stop stats.cc helper`.
+1. Download `statscc-helper-0.1.1-windows-x64.zip` from
+   [Releases](https://github.com/Nerawlox/statscc-helper/releases) and extract it.
+2. Choose a time when a brief network interruption is acceptable: installing
+   Windows Packet Filter may change network adapter bindings.
+3. Run `Install.cmd` and approve UAC **using your own Windows account**.
+4. Import a Throne profile or an Xray outbound/config JSON file. For portable
+   Throne, select its `throne.db` file. Choose the connection from the list.
+5. If stats.cc is not installed in the default location, select its `stats.cc.exe`.
+6. Wait for setup to finish. It creates the desktop shortcuts `stats.cc helper`
+   and `Stop stats.cc helper`.
 
-Xray и ProxiFyre скачиваются с официальных страниц. Версии и SHA-256 закреплены
-в `dependencies.json`. ProxiFyre выпускает свой установщик без подписи, поэтому
-Windows может показать неизвестного издателя; helper проверяет опубликованную
-контрольную сумму перед запуском. ProxiFyre устанавливает сетевой фильтр и,
-при необходимости, Visual C++ runtime. Автоматическая перезагрузка отключена:
-если Windows запросит её, перезагрузи компьютер в удобное время.
+Xray and ProxiFyre are downloaded from their official release pages. Versions and
+SHA-256 checksums are pinned in `dependencies.json`. ProxiFyre's installer is
+unsigned, so Windows may display an unknown publisher. The helper verifies the
+checksum against the value published for the official release before running it.
+ProxiFyre installs Windows Packet Filter and the Visual C++ runtime if needed.
+Setup does not restart Windows automatically; if a restart is requested, do it
+when convenient.
 
-После установки распакованный пакет можно удалить: рабочие ярлыки используют
-защищённые файлы в Program Files. Сохрани ZIP, если нужен повторный импорт профиля.
+After installation, you can remove the extracted package: the shortcuts use
+protected files in Program Files. Keep the ZIP if you want to import a new profile
+later.
 
-## Использование
+## Usage
 
-- Запускай **stats.cc helper**, оставляя общий VPN выключенным.
-- Helper перезапускает только stats.cc, чтобы заменить старые соединения.
-- Обычный запуск после установки не требует нового UAC: используется задача
-  планировщика, созданная при установке. У задачи нет автоматических триггеров.
-- Чтобы закончить, нажми **Stop stats.cc helper** или полностью выйди из оверлея
-  через его меню. Крестик может лишь спрятать окно в трей.
-- При завершении оверлея Xray и ProxiFyre выключаются. Если контроллер аварийно
-  завершается, Windows Job Object завершает оба дочерних процесса.
-- Основной VPN можно использовать обычным способом. После смены Wi-Fi/Ethernet
-  перезапусти helper.
-- Чтобы обновить сервер/ключи, останови helper и снова запусти `Install.cmd`.
+- Start **stats.cc helper** with your general VPN off.
+- The helper restarts stats.cc to replace its existing connections.
+- Normal startup does not show UAC again: it uses the scheduled task created
+  during installation. The task has no automatic triggers.
+- To stop, use **Stop stats.cc helper** or fully exit the overlay through its menu.
+  The window's close button may only hide stats.cc to the tray.
+- Xray and ProxiFyre stop when the overlay exits. A Windows Job Object also
+  terminates both child processes if the controller exits unexpectedly.
+- You can continue using your main VPN normally. Restart the helper after
+  switching between Wi-Fi and Ethernet.
+- To update the server or credentials, stop the helper and run `Install.cmd` again.
 
-Существующие изменённые ярлыки не перезаписываются. Helper не перезаписывает
-чужую настройку ProxiFyre; при конфликте установка остановится.
+Existing shortcuts are not overwritten. Setup stops if it finds a ProxiFyre
+configuration that does not match the helper's saved configuration.
 
-## Данные
+## Your data
 
-В репозитории и release ZIP нет реальных серверов, ключей, пользовательских UUID, базы Throne или
-пользовательского профиля. Каждый пользователь импортирует своё подключение.
+The repository and release ZIP contain no real server credentials, user UUIDs,
+Throne databases or user profiles. Each user imports their own connection.
 
-Параметры сервера сохраняются как `profile.dpapi`, зашифрованный Windows DPAPI
-для текущей учётной записи. Xray получает конфигурацию через stdin; временного
-файла с открытыми ключами helper не создаёт. Авторизация аккаунта stats.cc
-не читается. Импорт Throne открывает базу SQLite только для чтения.
+The server parameters are stored in `profile.dpapi`, encrypted with Windows DPAPI
+for the current Windows account. Xray receives its configuration through stdin;
+the helper does not create a plaintext configuration file. It does not read your
+stats.cc account credentials. Throne's SQLite database is opened read-only.
 
-Импорт создаёт копию профиля: выбор другого сервера в Throne не меняет её.
-Локальный профиль, базы, логи, кэш загрузок и пользовательские настройки
-исключены из Git и из списка файлов сборки.
+Importing creates a copy of the profile. Selecting another server in Throne does
+not update that copy. Local profiles, databases, logs, download caches and user
+settings are excluded from Git and from the package's explicit build file list.
 
-## Файлы и диагностика
+## Files and troubleshooting
 
-| Путь | Назначение |
+| Location | Purpose |
 | --- | --- |
-| `%ProgramFiles%\StatsCC Helper` | Xray, контроллер, зашифрованный профиль, кнопки |
-| `%ProgramFiles%\ProxiFyre` | Маршрутизатор и его правило |
-| `%ProgramData%\StatsCC Helper\status.json` | `Starting`, `Running`, `Stopped` или категория ошибки |
-| `%ProgramFiles%\ProxiFyre\logs` | Технические логи маршрутизатора |
-| Задача `StatsCC Independent Helper` | Ручной запуск контроллера |
+| `%ProgramFiles%\StatsCC Helper` | Xray, controller, encrypted profile and launch scripts |
+| `%ProgramFiles%\ProxiFyre` | Router and its routing rule |
+| `%ProgramData%\StatsCC Helper\status.json` | `Starting`, `Running`, `Stopped` or an error category |
+| `%ProgramFiles%\ProxiFyre\logs` | Router diagnostic logs |
+| Scheduled task `StatsCC Independent Helper` | Manual controller startup |
 
-`Running` означает, что процессы помощника запущены, и само по себе не
-подтверждает вход в аккаунт или работу статистики. После установки проверь
-оверлей с выключенным общим VPN. Локальные логи могут содержать пути и адреса;
-перед публикацией в issue убери личные сведения.
+`Running` means the helper processes have started. It does not by itself confirm
+account sign-in or working match statistics. After setup, check the actual overlay
+with your general VPN off. Local logs may include paths and addresses; remove
+personal details before sharing them in an issue.
 
-Типовые ошибки:
+Common errors:
 
-- `ExistingProxiFyreConfiguration` — уже есть сторонняя настройка ProxiFyre.
-- `StopHelperFirst` / `RouterAlreadyRunning` — сначала заверши работающий helper/ProxiFyre.
-- `NoCompatibleProfiles` — в базе нет подходящего Xray-профиля; используй JSON.
-- `ChainedOutboundsUnsupported` — профиль зависит от других прокси; нужен самостоятельный outbound.
-- `CoreConfigurationRejected` — Xray не принял конфигурацию; проверь формат экспорта.
-- `PortsBusy` — заняты локальные порты 21980/21981.
-- `UpstreamUnavailable` — не прошла проверка доступа к API stats.cc через сервер.
+- `ExistingProxiFyreConfiguration`: another ProxiFyre configuration is present.
+- `StopHelperFirst` / `RouterAlreadyRunning`: stop the running helper or ProxiFyre.
+- `NoCompatibleProfiles`: no compatible Xray profile was found; try JSON import.
+- `ChainedOutboundsUnsupported`: the profile depends on another proxy; use a
+  standalone outbound.
+- `CoreConfigurationRejected`: Xray rejected the configuration; check the export.
+- `PortsBusy`: local ports 21980/21981 are already in use.
+- `UpstreamUnavailable`: the stats.cc API check through the saved server failed.
 
-## Удаление
+## Uninstallation
 
-Запусти `Uninstall.cmd`. Он остановит этот helper, удалит его задачу, профиль и
-файлы, а также созданные им стандартные ярлыки, если их назначения не изменены.
-Переименованные/изменённые ярлыки удаляй самостоятельно.
+Run `Uninstall.cmd`. It stops the helper and removes its task, profile and files.
+It also removes the standard shortcuts if their destinations are unchanged.
+Remove renamed or modified shortcuts yourself.
 
-Общие ProxiFyre и Windows Packet Filter автоматически не удаляются: они могут
-использоваться другими программами. Если больше не нужны, удали их через
-«Установленные приложения» Windows в момент, когда допустимо прерывание сети.
+ProxiFyre and Windows Packet Filter remain installed because other applications
+may use them. If they are no longer needed, remove them through Windows Installed
+Apps at a time when a brief network interruption is acceptable.
 
-## Сборка и проверка
+## Building and testing
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Test.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Build.ps1
 ```
 
-Получится ZIP в `dist`. Сборка использует явный список исходников; зависимости
-скачиваются на компьютере пользователя во время установки. GitHub Actions
-проверяет проект на Windows и собирает пакет; тег `v*` публикует release.
+The ZIP is written to `dist`. The build uses an explicit list of source files;
+dependencies are downloaded on the user's computer during installation. GitHub
+Actions runs Windows checks and builds the package. A `v*` tag publishes an
+experimental prerelease.
 
-Исходная схема проверена на одном компьютере Windows: маршрутизация настоящего
-оверлея, загрузка полного интерфейса, запуск/остановка, отдельное физическое
-соединение Xray и обычный прокси Throne. Пользователь подтвердил работу без
-общего VPN. Универсальная установка не проверялась на всех конфигурациях Windows
-и провайдеров; статус первого выпуска — **experimental**.
+Local validation covered the real overlay's routing and interface download,
+startup/shutdown, Xray's independent physical connection and normal Throne proxy
+operation. Automated checks cover parsing, import validation, DPAPI, routing
+scope, preservation of changed router settings, read-only SQLite import and
+child-process cleanup. They do not perform a full generic installation.
 
-Это небольшой личный проект. Об ошибках можно сообщить через
-[Issues](https://github.com/Nerawlox/statscc-helper/issues): укажи версию Windows,
-способ импорта и категорию из `status.json`. Не прикладывай профиль подключения,
-базу Throne или данные входа. Подробнее: [CONTRIBUTING.md](CONTRIBUTING.md).
+This is a small personal project. Report problems through
+[Issues](https://github.com/Nerawlox/statscc-helper/issues), including the Windows
+version, import method and error category from `status.json`. Do not attach
+connection profiles, Throne databases or account credentials. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Лицензия
+## License
 
-Код helper — MIT. Зависимости имеют собственные лицензии; ссылки и исходники
-указаны в [THIRD-PARTY.md](THIRD-PARTY.md). Проект не связан со stats.cc или Ubisoft.
+The helper code is MIT-licensed. Dependencies have their own licenses; source and
+license links are listed in [THIRD-PARTY.md](THIRD-PARTY.md). This project is not
+affiliated with stats.cc or Ubisoft.

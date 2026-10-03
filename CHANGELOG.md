@@ -1,3 +1,8 @@
+# 0.1.1
+
+- English documentation, installer dialogs and startup errors.
+- No changes to routing or profile storage.
+
 # 0.1.0
 
 - Standalone per-process routing for the stats.cc overlay.

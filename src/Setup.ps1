@@ -44,7 +44,7 @@ try {
     if (!$AppPath) { $AppPath=Join-Path $env:LOCALAPPDATA 'Programs\stats.cc\stats.cc.exe' }
     if (!(Test-Path -LiteralPath $AppPath)) {
         $picker=New-Object Windows.Forms.OpenFileDialog
-        $picker.Title='Выбери установленный stats.cc.exe'; $picker.Filter='stats.cc|stats.cc.exe'
+        $picker.Title='Select the installed stats.cc.exe'; $picker.Filter='stats.cc|stats.cc.exe'
         if ($picker.ShowDialog() -ne [Windows.Forms.DialogResult]::OK) { throw 'Cancelled' }
         $AppPath=$picker.FileName
     }
@@ -55,14 +55,14 @@ try {
         if ($items.Count -ne 1) { throw 'ExpectedSingleOutbound' }
         $outbound=$items[0]
     } else { $outbound=Select-SetupOutbound $source }
-    $confirmation=[Windows.Forms.MessageBox]::Show("Установка направит только stats.cc через отдельное соединение.`n`nЕсли Windows Packet Filter ещё не установлен, его установка может кратко прервать сеть. Автоматической перезагрузки не будет.`n`nProxiFyre выпускает установщик без подписи; контрольная сумма проверяется по официальной публикации. Продолжить?",'Установка помощника stats.cc','OKCancel','Information')
+    $confirmation=[Windows.Forms.MessageBox]::Show("Setup will route only stats.cc through an independent connection.`n`nInstalling Windows Packet Filter may briefly interrupt your network. Windows will not restart automatically.`n`nThe official ProxiFyre installer is unsigned; its checksum is checked against the published release value. Continue?",'stats.cc helper setup','OKCancel','Information')
     if ($confirmation -ne [Windows.Forms.DialogResult]::OK) { throw 'Cancelled' }
-    $progress=New-Object Windows.Forms.Form; $progress.Text='Установка stats.cc helper'; $progress.Width=480; $progress.Height=140; $progress.StartPosition='CenterScreen'; $progress.ControlBox=$false
+    $progress=New-Object Windows.Forms.Form; $progress.Text='stats.cc helper setup'; $progress.Width=480; $progress.Height=140; $progress.StartPosition='CenterScreen'; $progress.ControlBox=$false
     $label=New-Object Windows.Forms.Label; $label.SetBounds(20,20,430,65); $progress.Controls.Add($label); $progress.Show()
     [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12
     $cache=Join-Path $package '.downloads'; New-Item -ItemType Directory -Path $cache -Force | Out-Null
     $dependencies=Get-Content -LiteralPath "$package\dependencies.json" -Raw | ConvertFrom-Json
-    Set-Stage 'Скачивание Xray с официальной страницы...'
+    Set-Stage 'Downloading Xray from its official release...'
     $zip=Get-VerifiedDownload $dependencies.xray 'xray.zip'
     $extract=Join-Path $cache 'xray'; Expand-Archive -LiteralPath $zip -DestinationPath $extract -Force
     $core=Join-Path $extract 'xray.exe'
@@ -70,14 +70,14 @@ try {
     Test-XrayOutbound $outbound $core
     [byte[]]$sealed=Protect-Outbound $outbound
     $outbound=$null
-    Set-Stage 'Подготовка ProxiFyre и сетевого фильтра...'
+    Set-Stage 'Preparing ProxiFyre and Windows Packet Filter...'
     $setup=Get-VerifiedDownload $dependencies.proxifyre 'proxifyre-setup.exe'
     $installer=Start-Process -FilePath $setup -ArgumentList '/install','/quiet','/norestart' -WindowStyle Hidden -PassThru
     $installer.WaitForExit()
     $exitCode=$installer.ExitCode
     if ($exitCode -notin @(0,3010)) { throw 'DependencyInstallationFailed' }
     if (!(Test-Path -LiteralPath "$proxy\ProxiFyre.exe")) { throw 'ProxiFyreNotInstalled' }
-    Set-Stage 'Создание защищённого профиля и кнопок запуска...'
+    Set-Stage 'Creating the protected profile and shortcuts...'
     New-Item -ItemType Directory -Path $installed,$runtime -Force | Out-Null
     Set-HelperDirectoryAcl $installed
     New-Item -ItemType Directory -Path "$installed\bin" -Force | Out-Null
@@ -107,8 +107,8 @@ try {
         }
     }
     $progress.Close(); $progress=$null
-    $message='Установлено. Запускай stats.cc helper с рабочего стола. Общий VPN для трекера не требуется. Обновить профиль можно повторным запуском Install.cmd после остановки помощника.'
-    if ($exitCode -eq 3010) { $message='Установлено. Windows запросила перезагрузку для завершения установки фильтра. Перезагрузи компьютер в удобное время, затем используй ярлык stats.cc helper.' }
+    $message='Installed. Use the stats.cc helper desktop shortcut; a general VPN is not needed for the tracker. To update your profile, stop the helper and run Install.cmd again.'
+    if ($exitCode -eq 3010) { $message='Installed. Windows requested a restart to finish setting up the filter. Restart when convenient, then use the stats.cc helper shortcut.' }
     [void][Windows.Forms.MessageBox]::Show($message,'stats.cc helper','OK','Information')
 } catch {
     if ($progress) { $progress.Close() }
@@ -116,6 +116,6 @@ try {
     # Never show raw JSON/parser exceptions containing credentials.
     $code=$_.Exception.Message
     if ($code -notmatch '^[A-Za-z]+$') { $code='SetupFailed' }
-    [void][Windows.Forms.MessageBox]::Show("Установка остановлена: $code.`nПроверь инструкцию README.md и повтори настройку. Параметры профиля не выводятся в диагностику.",'stats.cc helper','OK','Error')
+    [void][Windows.Forms.MessageBox]::Show("Setup stopped: $code.`nCheck README.md and try again. Profile credentials are omitted from diagnostics.",'stats.cc helper','OK','Error')
     exit 1
 }

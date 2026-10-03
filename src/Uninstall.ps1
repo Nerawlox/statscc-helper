@@ -11,7 +11,7 @@ try {
     if ($task -and $task.Actions.Arguments -notlike "*$root\Launch.ps1*") { throw 'UnexpectedTask' }
     $runtime=Join-Path $env:ProgramData 'StatsCC Helper'
     if ((Test-Path -LiteralPath $runtime) -and ((Get-Item -LiteralPath $runtime).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'UnexpectedRuntimePath' }
-    if ([Windows.Forms.MessageBox]::Show('Удалить helper, его профиль и задачу? ProxiFyre и сетевой фильтр останутся установленными.','stats.cc helper','OKCancel','Question') -ne [Windows.Forms.DialogResult]::OK) { exit }
+    if ([Windows.Forms.MessageBox]::Show('Remove the helper, its profile and scheduled task? ProxiFyre and Windows Packet Filter will remain installed.','stats.cc helper','OKCancel','Question') -ne [Windows.Forms.DialogResult]::OK) { exit }
     if (Test-Path -LiteralPath "$runtime\stop.request") { [IO.File]::WriteAllText("$runtime\stop.request",'stop') }
     for ($i=0;$i -lt 15;$i++) {
         $current=Get-ScheduledTask -TaskName 'StatsCC Independent Helper' -ErrorAction SilentlyContinue
@@ -37,10 +37,10 @@ try {
         if ($resolved -ne $runtime -or @(Get-ChildItem -LiteralPath $resolved -Recurse -Force | Where-Object {$_.Attributes -band [IO.FileAttributes]::ReparsePoint}).Count) { throw 'UnexpectedRuntimePath' }
         Remove-Item -LiteralPath $resolved -Recurse -Force
     }
-    [void][Windows.Forms.MessageBox]::Show('Helper удалён. Общие зависимости можно удалить через настройки Windows.','stats.cc helper','OK','Information')
+    [void][Windows.Forms.MessageBox]::Show('Helper removed. Shared dependencies can be uninstalled through Windows Settings.','stats.cc helper','OK','Information')
 } catch {
     $code=$_.Exception.Message
     if ($code -notmatch '^[A-Za-z]+$') { $code='UninstallFailed' }
-    [void][Windows.Forms.MessageBox]::Show("Удаление остановлено: $code",'stats.cc helper','OK','Error')
+    [void][Windows.Forms.MessageBox]::Show("Uninstall stopped: $code",'stats.cc helper','OK','Error')
     exit 1
 }

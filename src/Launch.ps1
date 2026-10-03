@@ -20,7 +20,7 @@ function Get-StopRequested {
 }
 function Show-Error([string]$Message) {
     Add-Type -AssemblyName System.Windows.Forms
-    [void][Windows.Forms.MessageBox]::Show($Message, 'stats.cc — отдельное подключение', 'OK', 'Error')
+    [void][Windows.Forms.MessageBox]::Show($Message, 'stats.cc helper', 'OK', 'Error')
 }
 try {
     if (!(Test-Path -LiteralPath $runtime)) { throw 'NotInstalled' }
@@ -69,14 +69,14 @@ try {
     $status = 'Error'
     $known = $_.Exception.Message
     $message = switch ($known) {
-        'PortsBusy' {'Порты помощника заняты. Закрой предыдущий помощник и попробуй снова.'}
-        'StatsNotFound' {'stats.cc не найден в обычной папке установки. Нужна проверка пути приложения.'}
-        'RoutingChanged' {'Правило ProxiFyre изменено. Помощник остановлен, чтобы не затронуть другие программы.'}
-        'RouterAlreadyRunning' {'ProxiFyre уже запущен. Закрой его перед отдельным запуском stats.cc.'}
-        'UpstreamUnavailable' {'Не удалось подключиться к сохранённому серверу. Интернет или параметры сервера изменились.'}
-        'NoPhysicalNetwork' {'Не найдена подключённая физическая сеть Wi-Fi или Ethernet.'}
-        'StatsStartFailed' {'stats.cc не запустился. Повтори запуск после завершения обновления приложения.'}
-        default {'Помощник не смог запуститься. Проверь установку ProxiFyre и сетевого фильтра. Техническое состояние: C:\ProgramData\StatsCC Helper\status.json.'}
+        'PortsBusy' {'The helper ports are in use. Stop the previous helper and try again.'}
+        'StatsNotFound' {'stats.cc was not found at the configured path. Check the application location.'}
+        'RoutingChanged' {'The ProxiFyre rule has changed. The helper stopped to avoid affecting other applications.'}
+        'RouterAlreadyRunning' {'ProxiFyre is already running. Stop it before starting stats.cc helper.'}
+        'UpstreamUnavailable' {'Cannot reach the saved server or the stats.cc API. Check connectivity and server parameters.'}
+        'NoPhysicalNetwork' {'No connected physical Wi-Fi or Ethernet interface was found.'}
+        'StatsStartFailed' {'stats.cc did not start. Try again after its update has finished.'}
+        default {"The helper could not start. Check ProxiFyre and Windows Packet Filter. Status file: $runtime\status.json."}
     }
     if (Test-Path -LiteralPath $runtime) {
         @{status='Error';category=if ($known -match '^[A-Za-z]+$') {$known} else {'StartupFailure'};time=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath "$runtime\status.json" -Encoding UTF8

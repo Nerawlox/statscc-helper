@@ -1,33 +1,33 @@
-# Как сообщить об ошибке
+# Reporting a problem
 
-Создай issue и укажи:
+Open an issue and include:
 
-- версию Windows и stats.cc;
-- версию helper и способ импорта: Throne или JSON Xray;
-- протокол и транспорт без адреса сервера и ключей;
-- что ожидалось, что произошло и категорию ошибки из `status.json`;
-- работает ли обычное подключение к этому серверу.
+- Your Windows and stats.cc versions.
+- The helper version and import method: Throne or Xray JSON.
+- The protocol and transport, without server addresses or credentials.
+- Expected behavior, actual behavior and the error category from `status.json`.
+- Whether your normal connection to the same server works.
 
-Не публикуй `profile.dpapi`, JSON подключения, `throne.db`, ссылки подписки,
-UUID, пароли, ключи, данные входа stats.cc или полные сетевые логи.
-Перед отправкой скриншотов проверь имена профилей, адреса и пути пользователя.
+Do not publish `profile.dpapi`, connection JSON, `throne.db`, subscription links,
+UUIDs, passwords, keys, stats.cc account credentials or complete network logs.
+Before sharing screenshots, check for profile names, addresses and user paths.
 
-# Изменения кода
+# Code changes
 
-Для pull request опиши изменение и проверку. Сохраняй UTF-8 с BOM для `.ps1`:
-установщик использует Windows PowerShell 5.1, в том числе русский текст.
+For a pull request, describe the change and how you tested it. Preserve UTF-8 with
+BOM for `.ps1` files: the installer uses Windows PowerShell 5.1.
 
-Запусти в Windows:
+Run on Windows:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Test.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Build.ps1
 ```
 
-Тесты используют вымышленные подключения. Добавляй новые проверки с такими же
-данными. Не добавляй реальные профили или двоичные зависимости. При изменении
-состава пакета обнови явный список в `scripts/Build.ps1`.
+Tests use synthetic connection data. Use the same approach for new tests; do not
+add real profiles or binary dependencies. If you change the package contents,
+update the explicit file list in `scripts/Build.ps1`.
 
-Полная проверка установки требует отдельной Windows-системы с установленным
-stats.cc и своим сервером. Не считай успешные автоматические тесты подтверждением
-работы на всех провайдерах и конфигурациях.
+Full installation testing requires a separate Windows system with stats.cc and
+your own server. Passing automated checks does not establish compatibility with
+all providers and configurations.
